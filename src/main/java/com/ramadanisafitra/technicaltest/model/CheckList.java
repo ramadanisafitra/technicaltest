@@ -1,4 +1,4 @@
-package com.ramadanisafitra.technicaltest.user;
+package com.ramadanisafitra.technicaltest.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Entity
 @Table(name ="checklist")
-public class Checklist {
+public class CheckList {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,10 +18,10 @@ public class Checklist {
 
     private String name;
 
-    public Checklist() {
+    public CheckList() {
     }
 
-    public Checklist(String name) {
+    public CheckList(String name) {
         this.name = name;
     }
 

@@ -5,13 +5,16 @@ import com.ramadanisafitra.technicaltest.dto.AuthenticationResponse;
 import com.ramadanisafitra.technicaltest.dto.RegisterRequest;
 import com.ramadanisafitra.technicaltest.dto.RegisterResponse;
 import com.ramadanisafitra.technicaltest.config.JwtServie;
-import com.ramadanisafitra.technicaltest.user.User;
-import com.ramadanisafitra.technicaltest.user.UserRepository;
+import com.ramadanisafitra.technicaltest.model.User;
+import com.ramadanisafitra.technicaltest.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,20 +42,25 @@ public class AuthenticationService {
                  .build();
     }
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponse login(AuthenticationRequest request) {
         try {
-//            authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(
-//                            request.getUsername(),
-//                            request.getPassword()
-//                    )
-//            );
-
             var userOptional = userRepository.findByUsername(request.getUsername());
-            log.info("isis :{}",userOptional)   ;
             var user = userOptional.orElseThrow(() -> new NoSuchElementException("User not found"));
 
-            var jwtToken = jwtServie.generateToken(user);
+            if (!checkPassword(request.getPassword(), user.getPassword())) {
+                throw new BadCredentialsException("Invalid username or password");
+            }
+
+            var authenticationToken = new UsernamePasswordAuthenticationToken(
+                    request.getUsername(),
+                    request.getPassword()
+            );
+            var authentication = authenticationManager.authenticate(authenticationToken);
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            var userDetails = (UserDetails) authentication.getPrincipal();
+
+            var jwtToken = jwtServie.generateToken(userDetails);
             return AuthenticationResponse.builder()
                     .token(jwtToken)
                     .build();
@@ -61,5 +69,11 @@ public class AuthenticationService {
             throw new BadCredentialsException("Invalid username or password");
         }
     }
+
+    private boolean checkPassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
+
+
 
 }

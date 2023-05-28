@@ -1,4 +1,4 @@
-package com.ramadanisafitra.technicaltest.user;
+package com.ramadanisafitra.technicaltest.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

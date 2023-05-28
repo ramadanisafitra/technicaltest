@@ -1,6 +1,6 @@
 package com.ramadanisafitra.technicaltest.config;
 
-import com.ramadanisafitra.technicaltest.user.UserRepository;
+import com.ramadanisafitra.technicaltest.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
